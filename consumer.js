@@ -1,41 +1,29 @@
-import { KafkaConsumer } from "node-rdkafka";
+var Kafka = require("node-rdkafka");
 
-const consumer = new KafkaConsumer({
-  'metadata.broker.list': 'localhost:9092',
+var stream = Kafka.KafkaConsumer.createReadStream({
+  'metadata.broker.list': '192.168.1.124:9092',
   'group.id': 'librd-test',
   'socket.keepalive.enable': true,
   'enable.auto.commit': false
-}, {
-  topics: 'TopicOne',
+}, {}, {
+  topics: ['TopicOne'],
   waitInterval: 0,
   objectMode: false
 });
 
-consumer.on("error", function(err) {
-  console.error(err);
+stream.on('error', function(err) {
+  if (err) console.log(err);
+  process.exit(1);
 });
 
-consumer.on("ready", function(arg) {
-  console.log(`Consumer ${arg.name} ready`);
-  consumer.subscribe(topics);
-  consumer.consume();
+stream
+  .pipe(process.stdout);
+
+stream.on('error', function(err) {
+  console.log(err);
+  process.exit(1);
 });
 
-consumer.on("data", function(m) {
-  counter++;
-  if (counter % numMessages === 0) {
-    console.log("calling commit");
-    consumer.commit(m);
-  }
-  console.log(m.value.toString());
-});
-
-consumer.on("disconnected", function(arg) {
-  process.exit();
-});
-
-consumer.connect();
-
-setTimeout(function() {
-  consumer.disconnect();
-}, 300000);
+stream.consumer.on('event.error', function(err) {
+  console.log(err);
+})
