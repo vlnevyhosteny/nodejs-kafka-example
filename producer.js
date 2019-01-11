@@ -2,11 +2,11 @@ var Kafka = require("node-rdkafka");
 
 var producer = new Kafka.Producer({
   //'debug' : 'all',
-  'metadata.broker.list': '192.168.1.124:9092',
+  'metadata.broker.list': '192.168.1.104:9092',
   'dr_cb': true  //delivery report callback
 });
 
-var topicName = 'TopicOne';
+var topicName = 'test';
 
 //logging debug messages, if debug is enabled
 producer.on('event.log', function(log) {
